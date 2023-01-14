@@ -1,0 +1,85 @@
+import telebot
+import random
+import json
+import time
+bot=telebot.TeleBot("5286896809:AAHS9J1-TBU7EhdOIeQqp7PDJTEjvxgKFDw")
+answers = {}
+
+try:
+    with open('data.json','w') as file:
+        answers = json.loads(file.read())
+except:
+    pass
+
+@bot.message_handler(commands=['opros'])
+def opr(message):
+    if message.chat.id in answers:
+        bot.send_message(message.chat.id, 'Ты уже проходил тест')
+    else:
+        bot.send_message(message.chat.id, 'Как прошло твое первое полугодие в этом корпусе?')
+        bot.register_next_step_handler(message, quest1)
+
+
+def quest1(message):
+    bot.send_message(message.chat.id, 'Доволен ли ты своей успеваемостью и результатами?')
+
+    answers[message.chat.id] = [message.text]
+    bot.register_next_step_handler(message, quest2)
+
+
+def quest2(message):
+    bot.send_message(message.chat.id, 'Как ты думаешь, хорошо ли оснащен оборудованием наш корпус?')
+
+    answers[message.chat.id].append(message.text)
+    bot.register_next_step_handler(message, quest3)
+
+
+def quest3(message):
+    bot.send_message(message.chat.id, 'Нравится ли тебе оборудование в этом корпусе?')
+
+    answers[message.chat.id].append(message.text)
+    bot.register_next_step_handler(message, quest4)
+
+
+def quest4(message):
+    bot.send_message(message.chat.id, 'Хотел ли бы ты его заменить?')
+
+    answers[message.chat.id].append(message.text)
+    bot.register_next_step_handler(message, quest5)
+
+
+def quest5(message):
+    bot.send_message(message.chat.id, 'Как ты считаешь, зависит ли твое обучение и успеваемость от здешнего оборудования?')
+    answers[message.chat.id].append(message.text)
+    bot.register_next_step_handler(message, quest6)
+
+def quest6(message):
+    bot.send_message(message.chat.id, 'Чтобы ты хотел изменить в IT корпусе? Напишите развернутый ответ, пожайлуста.')
+    answers[message.chat.id].append(message.text)
+    bot.register_next_step_handler(message, quest7)
+def quest7(message):
+    bot.send_message(message.chat.id, 'Спасибо за ответ!')
+    with open("answers.json", "w") as outfile:
+        outfile.write(json.dumps(answers, indent=4, ensure_ascii=False))
+
+@bot.message_handler(commands=['start','help'])
+def help(message):
+    chat_id = message.chat.id
+    bot.send_message(chat_id,"Привет! Это анонимный опрос напиши команду /opros. Пожайлуста оцените первые пять вопросов от 1 до 5")
+# @bot.message_handler(content_types=['text'])
+# def answer(message, question):
+#     #answers[message.chat.id]["data"] = []
+#     bot.send_message(message.chat_id, question)
+#     chat_id = message.chat.id
+#
+#     if chat_id not in answers:
+#         answers[chat_id] = []
+#     answers[chat_id]["data"].append(text)
+#     # Writing to sample.json
+#     with open("answers.json", "w") as outfile:
+#         outfile.write(json.dumps(answers, indent=4, ensure_ascii=False))
+#         # print(json_string.())
+
+
+if __name__=="__main__":
+   bot.polling()
